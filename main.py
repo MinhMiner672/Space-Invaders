@@ -35,7 +35,7 @@ def collision_check():
 
 def check_if_lose_health(x_pos_of_the_last_health_cell):
     for ene_sprite in enemy_grp.sprites():
-        if ene_sprite.rect.colliderect(player_grp.sprite.rect):
+        if ene_sprite.rect.colliderect(player_grp.sprite.rect) or ene_sprite.rect.y > 605:
             _global.lost_1_health = True
             ene_sprite.kill()
             health_rects.sprites()[-1].kill()
@@ -93,7 +93,7 @@ enemy_grp = pygame.sprite.Group()
 
 # Timer for gradually fast enemy spawning
 spawn_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(spawn_timer, 5000)
+pygame.time.set_timer(spawn_timer, 3500)
 
 # Timer for enemy addition
 seconds_per_timer = 1700
@@ -133,7 +133,7 @@ while True:
         if _global.game_start:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    if _global.glb_score % 10 == 0 and _global.glb_score != 0:
+                    if len(mana_grp) == 10:
                         _global.wait_for_user_activation = True
 
                     if _global.bullet_type == 1:
@@ -169,6 +169,7 @@ while True:
 
                             _global.start_cooldown = int(str(time.time()).split('.')[0])
                             _global.activated_power = True
+                            _global.wait_for_user_activation = False
 
                     elif event.key == pygame.K_2:
                         if _global.bullet_type == 0:
@@ -184,6 +185,8 @@ while True:
                             _global.max_mana_reach = False
                             _global.start_cooldown = int(str(time.time()).split('.')[0])
                             _global.activated_power = True
+                            _global.wait_for_user_activation = False
+
 
                     elif event.key == pygame.K_3:
                         selected_power_sprite = powers_grp.sprites()[2]
@@ -196,6 +199,8 @@ while True:
                         _global.killed_an_enemy = False
                         _global.max_mana_reach = False
                         _global.activated_power = True
+                        _global.wait_for_user_activation = False
+
                         _global.start_cooldown = int(str(time.time()).split('.')[0])
                         mana_grp.empty()
 
@@ -209,6 +214,7 @@ while True:
                             _global.killed_an_enemy = False
                             _global.max_mana_reach = False
                             _global.activated_power = True
+                            _global.wait_for_user_activation = False
 
                             enemy_grp.empty()
                             powers_grp.empty()
@@ -264,10 +270,12 @@ while True:
             shield_rect_on_player = shield_surf_on_player.get_rect(center=player_grp.sprite.rect.center)
             screen.blit(shield_surf_on_player, shield_rect_on_player)
 
+        _debug.show_info(_global.wait_for_user_activation)
+        _debug.show_info(_global.glb_score, y_pos=30)
         # shield_rect_on_player = 'var'
         collision_check()
         if _global.player_heals:
-            health_rect_x_pos += 60
+            health_rect_x_pos += 603
             _global.player_heals = False
         health_rect_x_pos = check_if_lose_health(health_rect_x_pos)
 
@@ -291,7 +299,7 @@ while True:
                 _global.activated_power = False
                 _global.able_to_kill_all = False if _global.able_to_kill_all else True
                 _global.start_cooldown = 0
-                bullet_grp.empty()
+                # bullet_grp.empty()
                 powers_grp.empty()
 
         # Draw 2 bars (health and energy)

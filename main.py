@@ -49,7 +49,7 @@ def display_score():
     score_text_rect = text_score_surf.get_rect(topleft=(20, 540))
     screen.blit(text_score_surf, score_text_rect)
 
-
+# Initializes pygame
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption('Space Invaders')

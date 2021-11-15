@@ -1,54 +1,52 @@
-from time import time
-import pygame, _debug
+import pygame
 from random import randint
-import _global, colors
+import _global
+import colors
+import _debug
 
 
 class Rect(pygame.sprite.Sprite):
-    def __init__(self, x: int, y: int, width: int, height: int, type: str):
+    def __init__(self, x: int, y: int, width: int, height: int, surf_type: str):
         super().__init__()
         self.image = pygame.Surface((width, height))
         self.x = x
         self.y = y
         self.rect = self.image.get_rect(topleft=(self.x, self.y))
-        self.rect_type = type
+        self.rect_type = surf_type
         self.color_index = 0
-        self.flashing_power_index = 0 
-
+        self.flashing_power_index = 0
 
     def update(self):
         if self.rect_type == 'health':
             self.image.fill(_global.rect_health_color)
-            
+
         elif self.rect_type == 'energy':
-            if _global.max_mana_reach == True:
+            if _global.max_mana_reach:
                 if self.color_index >= len(colors.MANA_COLORS):
                     self.color_index = 0
                 self.image.fill(colors.MANA_COLORS[int(self.color_index)])
                 self.color_index += 0.2
-                
+
             else:
                 self.image.fill(colors.MANA_COLORS[_global.mana_color_index])
 
         elif self.rect_type == 'powers':
-            if _global.activated_power == True:
+            if _global.activated_power:
                 if self.flashing_power_index >= len(colors.POWERS_COLORS):
                     self.flashing_power_index = 0
                 self.image.fill(colors.POWERS_COLORS[int(self.flashing_power_index)])
                 self.flashing_power_index += 0.3
-            
+
             else:
                 self.image.fill(colors.YELLOW)
-            
-    
+
 
 class SpaceShip(pygame.sprite.Sprite):
     def __init__(self) -> None:
         super().__init__()
 
         self.image = pygame.image.load('Images/Player/spaceship.png').convert_alpha()
-        self.rect = self.image.get_rect(midbottom = (400, 570))
-
+        self.rect = self.image.get_rect(midbottom=(400, 570))
 
     def key_input(self):
         keys = pygame.key.get_pressed()
@@ -66,17 +64,18 @@ class SpaceShip(pygame.sprite.Sprite):
 
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, type, x_pos):
+    def __init__(self, bullet_type, x_pos):
         super().__init__()
-        if type == 'normal':
-            self.image = pygame.transform.scale(pygame.image.load('Images/Bullets/bullet.png').convert_alpha(), (25, 25))
+        if bullet_type == 'normal':
+            self.image = pygame.transform.scale(pygame.image.load('Images/Bullets/bullet.png').convert_alpha(),
+                                                (25, 25))
             # self.id = 'normal_bullet'
-        elif type == 'bigger':
-            self.image = pygame.transform.scale(pygame.image.load('Images/Bullets/bullet.png').convert_alpha(), (45, 45))
+        elif bullet_type == 'bigger':
+            self.image = pygame.transform.scale(pygame.image.load('Images/Bullets/bullet.png').convert_alpha(),
+                                                (45, 45))
             # self.id = 'powered'
 
-
-        self.rect = self.image.get_rect(midbottom = (x_pos, 508))
+        self.rect = self.image.get_rect(midbottom=(x_pos, 508))
 
     def destroy(self):
         if self.rect.y < -10:
@@ -88,9 +87,9 @@ class Bullet(pygame.sprite.Sprite):
 
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, type) -> None:
+    def __init__(self, enemy_type) -> None:
         super().__init__()
-        self.enemy_type = type
+        self.enemy_type = enemy_type
         if self.enemy_type == 'normal':
             self.image = pygame.image.load('Images/Enemy/alien1.png').convert_alpha()
             self.health = 5
@@ -98,10 +97,11 @@ class Enemy(pygame.sprite.Sprite):
             self.image = pygame.image.load('Images/Enemy/alien_bigger.png').convert_alpha()
             self.health = 10
         elif self.enemy_type == 'mega':
-            self.image = pygame.transform.scale(pygame.image.load('Images/Enemy/alien_large.png').convert_alpha(), (70, 70))
+            self.image = pygame.transform.scale(pygame.image.load('Images/Enemy/alien_large.png').convert_alpha(),
+                                                (70, 70))
             self.health = 17
 
-        self.rect = self.image.get_rect(midtop = (randint(10, 700), 5))
+        self.rect = self.image.get_rect(midtop=(randint(10, 700), 5))
         self.direction = ''
 
     def bounce(self):
@@ -126,29 +126,25 @@ class Enemy(pygame.sprite.Sprite):
                 self.direction = 'left'
 
     def collision_check(self):
-        if _global.collision == True:
+        if _global.collision:
             if _global.bullet_type == 0 or _global.bullet_type == 1:
                 self.health -= 1
             elif _global.bullet_type == 2:
                 self.health -= 3
-            
-            if self.health <= 0:
-                increase_score = 2 if self.enemy_type == 'mega' else 1
-                _global.glb_score += increase_score
-                self.kill()
-                _global.killed_an_enemy = True
 
             _global.collision = False
 
-    def if_the_enemy_is_too_low(self):
-        if self.rect.top > 695:
+    def if_enemy_is_health_low(self):
+        if self.health <= 0:
+            increase_score = 2 if self.enemy_type == 'mega' else 1
+            _global.glb_score += increase_score
             self.kill()
-
+            _global.killed_an_enemy = True
 
     def update(self):
         self.bounce()
-        self.if_the_enemy_is_too_low()
         self.collision_check()
+        self.if_enemy_is_health_low()
 
 
 class Health_Item(pygame.sprite.Sprite):
@@ -179,7 +175,7 @@ class Health_Item(pygame.sprite.Sprite):
             if self.rect.right >= 800:
                 self.rect.right = 800
                 self.direction = 'left'
-    
+
     def update(self):
         if self.rect.y > 695:
             self.kill()

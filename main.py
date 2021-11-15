@@ -37,8 +37,11 @@ def check_if_lose_health(x_pos_of_the_last_health_cell):
     for ene_sprite in enemy_grp.sprites():
         if ene_sprite.rect.colliderect(player_grp.sprite.rect) or ene_sprite.rect.y > 605:
             _global.lost_1_health = True
+            # remove the enemy sprite
             ene_sprite.kill()
+            # remove one health cell
             health_rects.sprites()[-1].kill()
+            print('lost 1 health')
             return health_rects.sprites()[-1].rect.x + 60
 
     return x_pos_of_the_last_health_cell
@@ -49,7 +52,7 @@ def display_score():
     score_text_rect = text_score_surf.get_rect(topleft=(20, 540))
     screen.blit(text_score_surf, score_text_rect)
 
-# Initializes pygame
+
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption('Space Invaders')
@@ -242,8 +245,6 @@ while True:
                 pygame.quit()
                 exit()
             _global.lost_1_health = False
-            # health_rects.sprites()[-1].kill()
-            # _global.lost_1_health = False
 
         if 1 < len(health_rects) < 4:
             _global.rect_health_color = colors.YELLOW
@@ -270,12 +271,9 @@ while True:
             shield_rect_on_player = shield_surf_on_player.get_rect(center=player_grp.sprite.rect.center)
             screen.blit(shield_surf_on_player, shield_rect_on_player)
 
-        _debug.show_info(_global.wait_for_user_activation)
-        _debug.show_info(_global.glb_score, y_pos=30)
-        # shield_rect_on_player = 'var'
         collision_check()
         if _global.player_heals:
-            health_rect_x_pos += 603
+            health_rect_x_pos += 60
             _global.player_heals = False
         health_rect_x_pos = check_if_lose_health(health_rect_x_pos)
 

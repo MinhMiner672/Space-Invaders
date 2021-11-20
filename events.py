@@ -6,7 +6,6 @@ from sprites import Bullet, Enemy, Health_Item, Rect
 import time
 import colors
 
-
 class Events:
     """This class is used to track some events during the game"""
 
@@ -27,23 +26,31 @@ class Events:
 
         # Power Sprites
         self.triple_bullets_surf = pygame.transform.scale(
-            pygame.image.load('Images/Bullets/triple_bullets.jpg').convert_alpha(), (30, 30))
+            pygame.image.load("Images/Bullets/triple_bullets.jpg").convert_alpha(),
+            (30, 30),
+        )
         self.triple_bullets_rect = self.triple_bullets_surf.get_rect(topleft=(205, 18))
 
-        self.big_bullets_surf = pygame.transform.scale(pygame.image.load('Images/Bullets/bullet.png').convert_alpha(),
-                                                       (30, 30))
+        self.big_bullets_surf = pygame.transform.scale(
+            pygame.image.load("Images/Bullets/bullet.png").convert_alpha(), (30, 30)
+        )
         self.big_bullets_rect = self.big_bullets_surf.get_rect(topleft=(205 + 100, 18))
 
         self.shield_surf = pygame.transform.scale(
-            pygame.image.load('Images/Power-ups/blue_shield_icon.png').convert_alpha(), (30, 30))
+            pygame.image.load("Images/Power-ups/blue_shield_icon.png").convert_alpha(),
+            (30, 30),
+        )
         self.shield_rect = self.shield_surf.get_rect(topleft=(205 + 200, 18))
 
-        self.die_img_surf = pygame.transform.scale(pygame.image.load('Images/Power-ups/die_icon.png').convert_alpha(),
-                                                   (30, 30))
+        self.die_img_surf = pygame.transform.scale(
+            pygame.image.load("Images/Power-ups/die_icon.png").convert_alpha(), (30, 30)
+        )
         self.die_rect = self.die_img_surf.get_rect(topleft=(205 + 300, 18))
 
         self.cross_surf = pygame.transform.scale(
-            pygame.image.load('Images/Power-ups/cross_mark_icon.png').convert_alpha(), (50, 50))
+            pygame.image.load("Images/Power-ups/cross_mark_icon.png").convert_alpha(),
+            (50, 50),
+        )
         self.cross_rect = self.cross_surf.get_rect(topleft=(495, 6))
 
         self.shield_surf_on_player = None
@@ -94,18 +101,30 @@ class Events:
 
                         # if user has activated the first power-up (triple bullets)
                         if self.bullet_type == 1:
-                            x_pos_for_each_bullet = (self.game.player_grp.sprite.rect.x + 29) - 50
+                            x_pos_for_each_bullet = (
+                                self.game.player_grp.sprite.rect.x + 29
+                            ) - 50
                             for i in range(3):
-                                self.game.bullet_grp.add(Bullet('normal', x_pos_for_each_bullet))
+                                self.game.bullet_grp.add(
+                                    Bullet("normal", x_pos_for_each_bullet)
+                                )
                                 x_pos_for_each_bullet += 50
 
                         # if user has activated the first power-up (giant bullets)
                         elif self.bullet_type == 2:
-                            self.game.bullet_grp.add(Bullet('bigger', self.game.player_grp.sprite.rect.x + 30))
+                            self.game.bullet_grp.add(
+                                Bullet(
+                                    "bigger", self.game.player_grp.sprite.rect.x + 30
+                                )
+                            )
 
                         # normal power-up (bullets)
                         else:
-                            self.game.bullet_grp.add(Bullet('normal', self.game.player_grp.sprite.rect.x + 29))
+                            self.game.bullet_grp.add(
+                                Bullet(
+                                    "normal", self.game.player_grp.sprite.rect.x + 29
+                                )
+                            )
 
                 # the game will wait for user power-up activation
                 if self.wait_for_user_activation:
@@ -114,13 +133,20 @@ class Events:
                         if event.key == pygame.K_1:
                             self.game.mana_grp.empty()
                             for sprite in self.game.list_of_power_ups.sprites():
-                                if self.game.list_of_power_ups.sprites().index(sprite) == 0:
+                                if (
+                                    self.game.list_of_power_ups.sprites().index(sprite)
+                                    == 0
+                                ):
                                     continue
                                 self.game.list_of_power_ups.remove(sprite)
 
-                            x_pos_for_each_bullet = (self.game.player_grp.sprite.rect.x + 29) - 50
+                            x_pos_for_each_bullet = (
+                                self.game.player_grp.sprite.rect.x + 29
+                            ) - 50
                             for i in range(3):
-                                self.game.bullet_grp.add(Bullet('normal', x_pos_for_each_bullet))
+                                self.game.bullet_grp.add(
+                                    Bullet("normal", x_pos_for_each_bullet)
+                                )
                                 x_pos_for_each_bullet += 50
 
                             self.game.x_pos_for_each_power_up_in_list = 200
@@ -129,7 +155,7 @@ class Events:
                             self.killed_an_enemy = False
                             self.bullet_type = 1
 
-                            self.start_cooldown = int(str(time.time()).split('.')[0])
+                            self.start_cooldown = int(str(time.time()).split(".")[0])
                             self.activated_power = True
                             self.wait_for_user_activation = False
 
@@ -137,7 +163,9 @@ class Events:
                         elif event.key == pygame.K_2:
                             # _global.bullet_type = 2
                             self.game.mana_grp.empty()
-                            selected_power_sprite = self.game.list_of_power_ups.sprites()[1]
+                            selected_power_sprite = (
+                                self.game.list_of_power_ups.sprites()[1]
+                            )
                             for sprite in self.game.list_of_power_ups.sprites():
                                 if sprite != selected_power_sprite:
                                     self.game.list_of_power_ups.remove(sprite)
@@ -148,13 +176,15 @@ class Events:
                             self.game.bullet_grp.empty()
                             self.killed_an_enemy = False
                             self.max_mana_reach = False
-                            self.start_cooldown = int(str(time.time()).split('.')[0])
+                            self.start_cooldown = int(str(time.time()).split(".")[0])
                             self.activated_power = True
                             self.wait_for_user_activation = False
 
                         # user chooses the first power-up (shield)
                         elif event.key == pygame.K_3:
-                            selected_power_sprite = self.game.list_of_power_ups.sprites()[2]
+                            selected_power_sprite = (
+                                self.game.list_of_power_ups.sprites()[2]
+                            )
 
                             for sprite in self.game.list_of_power_ups.sprites():
                                 if sprite != selected_power_sprite:
@@ -168,13 +198,15 @@ class Events:
                             self.activated_power = True
                             self.wait_for_user_activation = False
 
-                            self.start_cooldown = int(str(time.time()).split('.')[0])
+                            self.start_cooldown = int(str(time.time()).split(".")[0])
                             self.game.mana_grp.empty()
 
                         # user chooses the first power-up (kill all enemies, this depends on user's ability)
                         elif event.key == pygame.K_4:
                             if self.ability_to_kill_all:
-                                selected_power_sprite = self.game.list_of_power_ups.sprites()[3]
+                                selected_power_sprite = (
+                                    self.game.list_of_power_ups.sprites()[3]
+                                )
                                 for sprite in self.game.list_of_power_ups.sprites():
                                     if sprite != selected_power_sprite:
                                         self.game.list_of_power_ups.remove(sprite)
@@ -193,9 +225,27 @@ class Events:
                                 self.seconds_per_timer = 1700
 
                 if event.type == self.enemy_timer:
-                    self.game.enemy_grp.add(Enemy(choice(
-                        ['normal', 'normal', 'normal', 'normal', 'big', 'mega', 'normal', 'normal', 'big', 'normal',
-                         'normal']), self.game, self))
+                    self.game.enemy_grp.add(
+                        Enemy(
+                            choice(
+                                [
+                                    "normal",
+                                    "normal",
+                                    "normal",
+                                    "normal",
+                                    "big",
+                                    "mega",
+                                    "normal",
+                                    "normal",
+                                    "big",
+                                    "normal",
+                                    "normal",
+                                ]
+                            ),
+                            self.game,
+                            self,
+                        )
+                    )
 
                 if event.type == self.health_timer:
                     if len(self.game.health_cells_grp) < 5:
@@ -223,7 +273,10 @@ class Events:
                 pass
 
             # If the player touches an enemy
-            if ene_sprite.rect.colliderect(self.game.player_grp.sprite.rect) or ene_sprite.rect.y > 605:
+            if (
+                ene_sprite.rect.colliderect(self.game.player_grp.sprite.rect)
+                or ene_sprite.rect.y > 605
+            ):
                 self.lost_1_health = True
 
                 # remove the enemy sprite
@@ -232,7 +285,9 @@ class Events:
                 # remove one health cell (loses 1 health cell)
                 self.game.health_cells_grp.sprites()[-1].kill()
                 try:
-                    self.game.health_top_left_x_pos = self.game.health_cells_grp.sprites()[-1].rect.x + 60
+                    self.game.health_top_left_x_pos = (
+                        self.game.health_cells_grp.sprites()[-1].rect.x + 60
+                    )
                 except IndexError:
                     # index error with health_cells_grp (this is due to empty list)
                     return
@@ -240,7 +295,10 @@ class Events:
         # if the enemy touches a bullet
         for bullet_sprite in self.game.bullet_grp.sprites():
             for ene_sprite in self.game.enemy_grp.sprites():
-                if bullet_sprite.rect.colliderect(ene_sprite.rect) or ene_sprite.rect.top > 595:
+                if (
+                    bullet_sprite.rect.colliderect(ene_sprite.rect)
+                    or ene_sprite.rect.top > 595
+                ):
                     bullet_sprite.kill()
                     self.if_an_enemy_touches_a_bullet = True
 
@@ -250,7 +308,16 @@ class Events:
                 if len(self.game.health_cells_grp) == 5:
                     return
 
-                self.game.health_cells_grp.add(Rect(self.game.health_top_left_x_pos, 580, 'health_cell', self, 60, 15))
+                self.game.health_cells_grp.add(
+                    Rect(
+                        self.game.health_top_left_x_pos,
+                        580,
+                        "health_cell",
+                        self,
+                        60,
+                        15,
+                    )
+                )
                 self.player_heals = True
                 health_item.kill()
 
@@ -264,7 +331,7 @@ class Events:
             # if the player dies
             if len(self.game.health_cells_grp) == 0:
                 self.game.over, self.game.started = True, False
-                self.game.refresh()
+                self.game.refresh(self)
             self.lost_1_health = False
 
         # If the player gets a health item
@@ -281,7 +348,15 @@ class Events:
             if len(self.game.list_of_power_ups.sprites()) < 4:
                 for i in range(4):
                     self.game.list_of_power_ups.add(
-                        Rect(self.game.x_pos_for_each_power_up_in_list, 13, 'powers', self, 40, 40))
+                        Rect(
+                            self.game.x_pos_for_each_power_up_in_list,
+                            13,
+                            "powers",
+                            self,
+                            40,
+                            40,
+                        )
+                    )
                     # powers_grp.add(Rect(x_pos_for_power_rects, 13, 'powers', 40, 40))
                     self.game.x_pos_for_each_power_up_in_list += 100
 
@@ -289,7 +364,14 @@ class Events:
         if self.killed_an_enemy:
             # if the energy bar is not full yet
             if len(self.game.mana_grp) < 10:
-                mana_surf = Rect(self.mana_rect_x_pos + (len(self.game.mana_grp) * 30), 560, 'energy', self, 30, 15)
+                mana_surf = Rect(
+                    self.mana_rect_x_pos + (len(self.game.mana_grp) * 30),
+                    560,
+                    "energy",
+                    self,
+                    30,
+                    15,
+                )
                 self.game.mana_grp.add(mana_surf)
                 self.mana_color_index = len(self.game.mana_grp) - 1
                 self.killed_an_enemy = False
@@ -297,7 +379,11 @@ class Events:
                 self.max_mana_reach = True
 
         # check if the player is able to use "kill all" power
-        if self.game.game_score % 30 in [0, 1] and self.game.game_score != 0 and self.game.game_score >= 20:
+        if (
+            self.game.game_score % 30 in [0, 1]
+            and self.game.game_score != 0
+            and self.game.game_score >= 20
+        ):
             self.ability_to_kill_all = True
 
         # if the player uses shield power-up
@@ -305,23 +391,32 @@ class Events:
             # Shows the selected power-up
             self.game.screen.blit(self.shield_surf, self.shield_rect)
 
-            # Displays the shield on the player 
+            # Displays the shield on the player
             self.shield_surf_on_player = pygame.transform.scale(
-                pygame.image.load('Images/Power-ups/blue_shield_icon.png').convert_alpha(), (130, 130))
+                pygame.image.load(
+                    "Images/Power-ups/blue_shield_icon.png"
+                ).convert_alpha(),
+                (130, 130),
+            )
             self.shield_surf_on_player.set_alpha(70)
             self.shield_rect_on_player = self.shield_surf_on_player.get_rect(
-                center=self.game.player_grp.sprite.rect.center)
-            self.game.screen.blit(self.shield_surf_on_player, self.shield_rect_on_player)
+                center=self.game.player_grp.sprite.rect.center
+            )
+            self.game.screen.blit(
+                self.shield_surf_on_player, self.shield_rect_on_player
+            )
 
     def bullet_events(self) -> None:
         # if the bullet_type is not the original one
         if self.bullet_type != 0:
             # if the player uses the first power-up (multiple bullets)
             if self.bullet_type == 1:
-                self.game.screen.blit(self.triple_bullets_surf, self.triple_bullets_rect)
+                self.game.screen.blit(
+                    self.triple_bullets_surf, self.triple_bullets_rect
+                )
             # the second power-up (big bullets)
             elif self.bullet_type == 2:
                 self.game.screen.blit(self.big_bullets_surf, self.big_bullets_rect)
 
     def __repr__(self) -> str:
-        return 'Event Object'
+        return "Event Object"

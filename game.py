@@ -40,18 +40,18 @@ class Game:
         # Bool Vars
         self.shield_rect_on_player = False
 
-    def show_background(self):
+    def show_background(self) -> None:
         """Shows the game background"""
         self.screen.blit(self.background, (0, 0))
 
-    def display_score(self):
+    def display_score(self) -> None:
         """Displays the game score"""
         space_font = pygame.font.Font('Fonts/big_space.ttf', 40)
         text_score_surf = space_font.render(f'Score: {self.game_score}', False, (194, 255, 212))
         score_text_rect = text_score_surf.get_rect(topleft=(20, 540))
         self.screen.blit(text_score_surf, score_text_rect)
 
-    def refresh(self, event_class):
+    def refresh(self, event_class) -> None:
         """Cleans the game"""
         # clear all bullets and enemies
         self.bullet_grp.empty()
@@ -66,7 +66,7 @@ class Game:
             self.health_top_left_x_pos += 60
         self.health_top_left_x_pos -= 60
 
-    def style_health_bar(self, event_class):
+    def style_health_bar(self, event_class) -> None:
         """Changes the health bar's color depending on the number of health cells"""
         if 1 < len(self.health_cells_grp) < 4:
             event_class.rect_health_color = colors.YELLOW
@@ -75,10 +75,10 @@ class Game:
         elif len(self.health_cells_grp) >= 4:
             event_class.rect_health_color = colors.GREEN
 
-    def control_fps(self):
+    def control_fps(self) -> None:
         """Controls the FPS's consistence, make it not fluctuate"""
         pygame.display.update()
         self.clock.tick(60)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'Space Invaders Main Class'

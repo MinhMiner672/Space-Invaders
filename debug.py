@@ -1,7 +1,7 @@
 import pygame
 
 
-def show_info(info: str, y_pos=10, x_pos=10):
+def show_info(info: str, y_pos=10, x_pos=10) -> None:
     """
     Shows a piece of information onto the display surface
     This helps you to track the change of variables
@@ -12,7 +12,7 @@ def show_info(info: str, y_pos=10, x_pos=10):
     screen.blit(info_text_surf, (x_pos, y_pos)) 
 
 
-def show_cursor():
+def show_cursor() -> None:
     """Show the current position of the mouse cursor in real time"""
     screen = pygame.display.get_surface()
     font = pygame.font.Font(None, 30)

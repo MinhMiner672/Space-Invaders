@@ -71,7 +71,7 @@ class Events:
         self.rect_health_color = colors.GREEN
         self.rect_mama_color = colors.CYAN
 
-    def keyboard_inputs(self):
+    def keyboard_inputs(self) -> None:
         """If a specific key is pressed, this function will be executed"""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -206,7 +206,7 @@ class Events:
                     self.enemy_timer = pygame.USEREVENT + 2
                     pygame.time.set_timer(self.enemy_timer, self.seconds_per_timer)
 
-    def collision(self):
+    def collision(self) -> None:
         """
         This functions checks for 4 collision events:
         - If an enemy touches a bullet
@@ -254,7 +254,7 @@ class Events:
                 self.player_heals = True
                 health_item.kill()
 
-    def player_events(self):
+    def player_events(self) -> None:
         """
         Tracks the player's events (reaching full energy, losing 1 health cell, power-up activation...).
         This function doesn't include collision events
@@ -313,7 +313,7 @@ class Events:
                 center=self.game.player_grp.sprite.rect.center)
             self.game.screen.blit(self.shield_surf_on_player, self.shield_rect_on_player)
 
-    def bullet_events(self):
+    def bullet_events(self) -> None:
         # if the bullet_type is not the original one
         if self.bullet_type != 0:
             # if the player uses the first power-up (multiple bullets)
@@ -323,5 +323,5 @@ class Events:
             elif self.bullet_type == 2:
                 self.game.screen.blit(self.big_bullets_surf, self.big_bullets_rect)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'Event Object'

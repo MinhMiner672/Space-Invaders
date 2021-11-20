@@ -1,32 +1,36 @@
 import time
-
-import _debug
+import debug
 import pygame
 
-import _global
 import colors
-from sprites import Rect
 from game import Game
 from events import Events
+from sprites import Button
 
 collide_shield = False
 
 pygame.init()
 
 game = Game()
-game.refresh()
-
 events_tracker = Events(game)
+game.refresh(events_tracker)
 
 start_screen_font = pygame.font.Font('Fonts/Plaguard-ZVnjx.otf', 50)
 
-start_screen_img = pygame.transform.scale(pygame.image.load('Images/start_bg.jpg').convert_alpha(), (880, 620))
-start_screen_text_surf = start_screen_font.render('Start', True, colors.GREEN)
-start_screen_text_rect = start_screen_text_surf.get_rect(topleft=(330, 300))
-topleft_pos = 205
+cubic_pixel_font = pygame.font.Font('Fonts/CubicPixel-lgEmy.otf', 70)
+paused_title_surf = cubic_pixel_font.render('Game Paused', False, colors.CYAN)
+paused_title_rect = paused_title_surf.get_rect(midtop=(400, 190))
 
-game.screen.blit(start_screen_text_surf, start_screen_text_rect)
+start_screen_background = pygame.transform.scale(pygame.image.load('Images/Scenes/start_bg.jpg').convert(), (880, 620))
+paused_screen_background = pygame.image.load('Images/Scenes/pause_bg.jpg').convert()
 
+butts_font_path = 'Fonts/Plaguard-ZVnjx.otf'
+glue_gun_font_path = 'Fonts/GlueGun-GW8Z.ttf'
+start_button = Button(400, 280, 'start', 50, butts_font_path, colors.GREEN)
+quit_button_when_not_stated = Button(400, 370, 'Quit', 40, butts_font_path, colors.WHITE)
+
+resume_button = Button(400, 335, 'Resume', 55, glue_gun_font_path, colors.WHITE)
+quit_button_when_paused = Button(400, 420, 'Quit', 55, glue_gun_font_path, colors.WHITE)
 # Retry button
 retry_font = pygame.font.Font('Fonts/GlueGun-GW8Z.ttf', 55)
 retry_text_surf = retry_font.render('Retry', False, (255, 255, 255))
@@ -37,21 +41,6 @@ menu_font = pygame.font.Font('Fonts/GlueGun-GW8Z.ttf', 55)
 menu_text_surf = menu_font.render('Menu', False, (255, 255, 255))
 menu_text_rect = menu_text_surf.get_rect(midtop=(520, 330))
 
-shield_rect_on_player = None
-
-# Timer for gradually fast enemy spawning
-spawn_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(spawn_timer, 3500)
-
-# Timer for enemy addition
-seconds_per_timer = 1700
-enemy_timer = pygame.USEREVENT + 2
-pygame.time.set_timer(enemy_timer, seconds_per_timer)
-
-# Health Item Timer
-health_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(health_timer, 10000)
-
 # Energy Bar Rectangles
 mana_rect_x_pos = 497
 
@@ -59,14 +48,13 @@ mana_rect_x_pos = 497
 running = True
 while running:
     # Track all events
-    events_tracker.key_board_inputs()
+    events_tracker.keyboard_inputs()
 
-    if game.started:
+    # If the game has started
+    if game.started and not game.paused:
         game.show_background()
         game.display_score()
-        game.style_health_bar()
-
-        events_tracker.player_events()
+        game.style_health_bar(events_tracker)
 
         # Draw, update the player
         game.player_grp.draw(game.screen)
@@ -79,13 +67,6 @@ while running:
         # Draw, update the falling health item
         game.health_items.draw(game.screen)
         game.health_items.update()
-
-        # Show the shield
-        if events_tracker.shield_activation:
-            shield_surf_on_player = pygame.transform.scale(pygame.image.load('Images/blue_shield.png').convert_alpha(), (130, 130))
-            shield_surf_on_player.set_alpha(70)
-            shield_rect_on_player = shield_surf_on_player.get_rect(center=game.player_grp.sprite.rect.center)
-            game.screen.blit(shield_surf_on_player, shield_rect_on_player)
 
         # Declare 2 variables, one indicates the seconds of the start cooldown time
         if events_tracker.bullet_type != 0 or events_tracker.shield_activation:
@@ -105,7 +86,7 @@ while running:
                 events_tracker.activated_power = False
                 events_tracker.ability_to_kill_all = False if events_tracker.ability_to_kill_all else True
                 events_tracker.start_cooldown = 0
-                # bullet_grp.empty()
+
                 game.list_of_power_ups.empty()
 
         # Draw 2 bars (health and energy)
@@ -116,7 +97,7 @@ while running:
         game.enemy_grp.draw(game.screen)
         game.enemy_grp.update()
 
-        events_tracker.collision(events_tracker.shield_rect)
+        events_tracker.collision()
 
         # Draw, update the health bar
         game.health_cells_grp.draw(game.screen)
@@ -126,7 +107,7 @@ while running:
         game.list_of_power_ups.draw(game.screen)
         game.list_of_power_ups.update()
 
-        _debug.show_info(str(len(game.mana_grp)))
+        events_tracker.player_events()
 
         # If the energy bar is full (10 kills / 1 max energy)
         if events_tracker.max_mana_reach:
@@ -137,50 +118,70 @@ while running:
             if not events_tracker.ability_to_kill_all:
                 events_tracker.game.screen.blit(events_tracker.cross_surf, events_tracker.cross_rect)
 
-        # if the bullet_type is not the original one
-        if events_tracker.bullet_type != 0:
-            # if the player uses the first power-up (multiple bullets)
-            if events_tracker.bullet_type == 1:
-                game.screen.blit(events_tracker.triple_bullets_surf, events_tracker.triple_bullets_rect)
-            # the second power-up (big bullets)
-            elif events_tracker.bullet_type == 2:
-                game.screen.blit(events_tracker.big_bullets_surf, events_tracker.big_bullets_rect)
+        events_tracker.bullet_events()
 
-        # if the player uses shield power-up
-        if events_tracker.shield_activation:
-            game.screen.blit(events_tracker.shield_surf, events_tracker.shield_rect)
-
-        # draw, update energy sprites
+        # Draw, update energy sprites
         game.mana_grp.draw(game.screen)
         game.mana_grp.update()
 
-    else:
+    # if the game is paused
+    elif game.started and game.paused:
+        game.screen.blit(paused_screen_background, (0, 0))
+
+        game.screen.blit(paused_title_surf, paused_title_rect)
+        game.screen.blit(resume_button.image, resume_button.rect)
+        if resume_button.on_hover():
+            resume_button.font = pygame.font.Font(resume_button.font_path, resume_button.font_size + 10)
+            resume_button.image = resume_button.font.render(resume_button.text, False, resume_button.color)
+            resume_button.rect = resume_button.image.get_rect(midtop=(resume_button.x, resume_button.y - 5))
+            if resume_button.on_click():
+                game.paused = False
+        else:
+            resume_button = Button(400, 335, 'Resume', 55, glue_gun_font_path, colors.WHITE)
+
+        game.screen.blit(quit_button_when_paused.image, quit_button_when_paused.rect)
+        if quit_button_when_paused.on_hover():
+            quit_button_when_paused.font = pygame.font.Font(quit_button_when_paused.font_path, quit_button_when_paused.font_size + 10)
+            quit_button_when_paused.image = quit_button_when_paused.font.render(quit_button_when_paused.text, False, quit_button_when_paused.color)
+            quit_button_when_paused.rect = quit_button_when_paused.image.get_rect(midtop=(quit_button_when_paused.x, quit_button_when_paused.y - 5))
+            if quit_button_when_paused.on_click():
+                running = False
+        else:
+            quit_button_when_paused = Button(400, 420, 'Quit', 55, glue_gun_font_path, colors.WHITE)
+
+    # Else if the game has not started
+    elif not game.started and not game.paused:
+        # If the game is not over
         if not game.over:
-            game.screen.blit(start_screen_img, (0, 0))
+            game.screen.blit(start_screen_background, (0, 0))
 
-            # game.screen.blit(start_screen_text_surf, start_screen_text_rect)
-
-            if start_screen_text_rect.collidepoint(pygame.mouse.get_pos()):
-                start_screen_font = pygame.font.Font('Fonts/Plaguard-ZVnjx.otf', 60)
-                start_screen_text_surf = start_screen_font.render('Start', True, colors.GREEN)
-                start_screen_text_rect = start_screen_text_surf.get_rect(topleft=(315, 295))
-                if pygame.mouse.get_pressed(num_buttons=3)[0] and start_screen_text_rect.collidepoint(pygame.mouse.get_pos()):
+            # Shows the 'start' button
+            game.screen.blit(start_button.image, start_button.rect)
+            if start_button.on_hover():
+                start_button.font = pygame.font.Font(start_button.font_path, start_button.font_size + 10)
+                start_button.image = start_button.font.render(start_button.text, False, start_button.color)
+                start_button.rect = start_button.image.get_rect(midtop=(start_button.x, start_button.y - 5))
+                if start_button.on_click():
                     game.started = True
-
             else:
-                start_screen_font = pygame.font.Font('Fonts/Plaguard-ZVnjx.otf', 50)
+                start_button = Button(400, 280, 'start', 50, butts_font_path, colors.GREEN)
 
-                start_screen_img = pygame.transform.scale(pygame.image.load('Images/start_bg.jpg').convert_alpha(),
-                                                          (880, 620))
-                start_screen_text_surf = start_screen_font.render('Start', True, colors.GREEN)
-                start_screen_text_rect = start_screen_text_surf.get_rect(topleft=(330, 300))
-
-            game.screen.blit(start_screen_text_surf, start_screen_text_rect)
+            # Shows the 'quit' button
+            game.screen.blit(quit_button_when_not_stated.image, quit_button_when_not_stated.rect)
+            if quit_button_when_not_stated.on_hover():
+                quit_button_when_not_stated.font = pygame.font.Font(quit_button_when_not_stated.font_path, quit_button_when_not_stated.font_size + 10)
+                quit_button_when_not_stated.image = quit_button_when_not_stated.font.render(quit_button_when_not_stated.text, False, quit_button_when_not_stated.color)
+                quit_button_when_not_stated.rect = quit_button_when_not_stated.image.get_rect(midtop=(quit_button_when_not_stated.x, quit_button_when_not_stated.y - 5))
+                if quit_button_when_not_stated.on_click():
+                    running = False
+            else:
+                quit_button_when_not_stated = Button(400, 370, 'Quit', 40, 'Fonts/Plaguard-ZVnjx.otf', (255, 255, 255))
 
         # if player loses the game
         else:
             # screen.fill(colors.BLACK)
-            game.screen.blit(pygame.transform.rotozoom(pygame.image.load('Images/over_bg.jpg').convert(), 0, 4.0), (0, 0))
+            game.screen.blit(
+                pygame.transform.rotozoom(pygame.image.load('Images/Scenes/over_bg.jpg').convert(), 0, 4.0), (0, 0))
 
             # Game Over Text
             game_over_font = pygame.font.Font('Fonts/DebugFreeTrial-MVdYB.otf', 120)

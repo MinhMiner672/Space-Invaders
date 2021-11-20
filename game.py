@@ -1,5 +1,5 @@
 import pygame
-from sprites import SpaceShip, Rect, Bullet
+from sprites import SpaceShip, Rect
 import colors
 
 
@@ -9,10 +9,12 @@ class Game:
     def __init__(self):
         # Basic stuff for the screen
         self.screen = pygame.display.set_mode((800, 600))
-        self.background = pygame.image.load('Images/Game/game_background.jpg').convert()
+        self.background = pygame.image.load("Images/Game/game_background.jpg").convert()
         self.clock = pygame.time.Clock()
-        pygame.display.set_caption('Space Invaders')
-        pygame.display.set_icon(pygame.image.load('Images/Game/game_icon.png').convert_alpha())
+        pygame.display.set_caption("Space Invaders")
+        pygame.display.set_icon(
+            pygame.image.load("Images/Game/game_icon.png").convert_alpha()
+        )
 
         # Game states
         self.started = False
@@ -46,8 +48,10 @@ class Game:
 
     def display_score(self) -> None:
         """Displays the game score"""
-        space_font = pygame.font.Font('Fonts/big_space.ttf', 40)
-        text_score_surf = space_font.render(f'Score: {self.game_score}', False, (194, 255, 212))
+        space_font = pygame.font.Font("Fonts/big_space.ttf", 40)
+        text_score_surf = space_font.render(
+            f"Score: {self.game_score}", False, (194, 255, 212)
+        )
         score_text_rect = text_score_surf.get_rect(topleft=(20, 540))
         self.screen.blit(text_score_surf, score_text_rect)
 
@@ -57,12 +61,21 @@ class Game:
         self.bullet_grp.empty()
         self.enemy_grp.empty()
         self.mana_grp.empty()
+        self.health_items.empty()
 
         # recover the player (full 5 health cells)
         self.health_top_left_x_pos = 497
         for i in range(5):
             self.health_cells_grp.add(
-                Rect(x=self.health_top_left_x_pos, y=580, surf_type='health_cell', event_class=event_class, width=60, height=15))
+                Rect(
+                    x=self.health_top_left_x_pos,
+                    y=580,
+                    surf_type="health_cell",
+                    event_class=event_class,
+                    width=60,
+                    height=15,
+                )
+            )
             self.health_top_left_x_pos += 60
         self.health_top_left_x_pos -= 60
 
@@ -81,4 +94,4 @@ class Game:
         self.clock.tick(60)
 
     def __repr__(self) -> str:
-        return f'Space Invaders Main Class'
+        return f"Space Invaders Main Class"

@@ -6,8 +6,11 @@ from game import Game
 from events import Events
 from sprites import Button
 
+from pygame import mixer
+import debug
 
 pygame.init()
+
 
 game = Game()
 events_tracker = Events(game)
@@ -18,16 +21,12 @@ butts_font_path = "Fonts/Plaguard-ZVnjx.otf"
 glue_gun_font_path = "Fonts/GlueGun-GW8Z.ttf"
 
 start_screen_font = pygame.font.Font("Fonts/Plaguard-ZVnjx.otf", 50)
-
 cubic_pixel_font = pygame.font.Font("Fonts/CubicPixel-lgEmy.otf", 70)
-paused_title_surf = cubic_pixel_font.render("Game Paused", False, colors.CYAN)
-paused_title_rect = paused_title_surf.get_rect(midtop=(400, 190))
 
 start_screen_background = pygame.transform.scale(
     pygame.image.load("Images/Scenes/start_bg.jpg").convert(), (880, 620)
 )
 paused_screen_background = pygame.image.load("Images/Scenes/pause_bg.jpg").convert()
-
 
 # Some buttons
 start_button = Button(400, 280, "start", 50, butts_font_path, colors.GREEN)
@@ -40,6 +39,11 @@ quit_button_when_not_stated = Button(
 )
 quit_button_when_paused = Button(400, 420, "Quit", 55, glue_gun_font_path, colors.WHITE)
 
+# Plays the background music
+# mixer.init()
+# mixer.music.load("./Sound/karlson_vibe.mp3")
+# mixer.music.set_volume(0.2)
+# mixer.music.play()
 
 # GAME LOOP
 running = True
@@ -49,6 +53,8 @@ while running:
 
     # If the game has started
     if game.started and not game.paused:
+
+        # theme_sound.play(loops=-1)
         game.show_background()
         game.display_score()
         game.style_health_bar(events_tracker)
@@ -135,6 +141,10 @@ while running:
 
     # if the game is paused
     elif game.started and game.paused:
+        mixer.music.pause()
+        paused_title_surf = cubic_pixel_font.render("Game Paused", False, colors.CYAN)
+        paused_title_rect = paused_title_surf.get_rect(midtop=(400, 190))
+
         game.screen.blit(paused_screen_background, (0, 0))
 
         game.screen.blit(paused_title_surf, paused_title_rect)
@@ -150,6 +160,7 @@ while running:
                 midtop=(resume_button.x, resume_button.y - 5)
             )
             if resume_button.on_click():
+                mixer.music.unpause()
                 game.paused = False
         else:
             resume_button = Button(
@@ -235,7 +246,7 @@ while running:
         else:
             # Set the seconds_per_timer back to 170, to avoid rapid enemy spawn_timer
             events_tracker.seconds_per_timer = 170
-            
+
             # Game over background
             game.screen.blit(
                 pygame.transform.rotozoom(
@@ -289,7 +300,6 @@ while running:
                 menu_button = Button(
                     520, 330, "Menu", 55, "Fonts/GlueGun-GW8Z.ttf", colors.WHITE
                 )
-
     # Always update a portion of the screen, and control the FPS
     game.control_fps()
 

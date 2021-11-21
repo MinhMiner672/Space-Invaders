@@ -1,6 +1,7 @@
 import pygame
 from random import randint
 import colors
+from sound import SoundPlayer
 
 
 class Rect(pygame.sprite.Sprite):
@@ -52,7 +53,8 @@ class Rect(pygame.sprite.Sprite):
             if self.events_tracker.activated_power:
                 if self.flashing_power_index >= len(colors.POWERS_COLORS):
                     self.flashing_power_index = 0
-                self.image.fill(colors.POWERS_COLORS[int(self.flashing_power_index)])
+                self.image.fill(
+                    colors.POWERS_COLORS[int(self.flashing_power_index)])
                 self.flashing_power_index += 0.3
 
             else:
@@ -63,9 +65,9 @@ class SpaceShip(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
 
-        self.image = pygame.image.load("Images/Player/spaceship.png").convert_alpha()
+        self.image = pygame.image.load(
+            "Images/Player/spaceship.png").convert_alpha()
         self.rect = self.image.get_rect(midbottom=(400, 570))
-        self.attr = "lmao"
 
     def key_input(self):
         keys = pygame.key.get_pressed()
@@ -86,14 +88,12 @@ class Bullet(pygame.sprite.Sprite):
     def __init__(self, bullet_type, x_pos):
         super().__init__()
         if bullet_type == "normal":
-            self.image = pygame.transform.scale(
-                pygame.image.load("Images/Bullets/bullet.png").convert_alpha(), (25, 25)
-            )
+            self.image = pygame.transform.scale(pygame.image.load(
+                "Images/Bullets/bullet.png").convert_alpha(), (25, 25))
 
         elif bullet_type == "bigger":
-            self.image = pygame.transform.scale(
-                pygame.image.load("Images/Bullets/bullet.png").convert_alpha(), (45, 45)
-            )
+            self.image = pygame.transform.scale(pygame.image.load(
+                "Images/Bullets/bullet.png").convert_alpha(), (45, 45))
 
         self.rect = self.image.get_rect(midbottom=(x_pos, 508))
 
@@ -112,14 +112,16 @@ class Power_Ups(pygame.sprite.Sprite):
 
         if power_type == "big_bullets":
             self.image = pygame.transform.scale(
-                pygame.image.load("Images/Bullets/bullet.png").convert_alpha(), (45, 45)
+                pygame.image.load(
+                    "Images/Bullets/bullet.png").convert_alpha(), (45, 45)
             )
 
         self.rect = self.image.get_rect(midbotton=(x_pos, y_pos))
 
         if power_type == "shield":
             self.image = pygame.transform.scale(
-                pygame.image.load("Images/blue_shield.png").convert_alpha(), (30, 30)
+                pygame.image.load(
+                    "Images/blue_shield.png").convert_alpha(), (30, 30)
             )
             self.rect = self.image.get_rect(center=(x_pos, y_pos))
 
@@ -138,7 +140,8 @@ class Enemy(pygame.sprite.Sprite):
 
         self.enemy_type = enemy_type
         if self.enemy_type == "normal":
-            self.image = pygame.image.load("Images/Enemy/alien1.png").convert_alpha()
+            self.image = pygame.image.load(
+                "Images/Enemy/alien1.png").convert_alpha()
             self.health = 5
         elif self.enemy_type == "big":
             self.image = pygame.image.load(
@@ -147,7 +150,8 @@ class Enemy(pygame.sprite.Sprite):
             self.health = 10
         elif self.enemy_type == "mega":
             self.image = pygame.transform.scale(
-                pygame.image.load("Images/Enemy/alien_large.png").convert_alpha(),
+                pygame.image.load(
+                    "Images/Enemy/alien_large.png").convert_alpha(),
                 (70, 70),
             )
             self.health = 17
@@ -190,6 +194,7 @@ class Enemy(pygame.sprite.Sprite):
 
     def if_enemy_is_health_low(self):
         if self.health <= 0:
+            SoundPlayer().an_enemy_dies.play()
             self.kill()
             increase_score = 2 if self.enemy_type == "mega" else 1
             self.game.game_score += increase_score
@@ -206,7 +211,8 @@ class Health_Item(pygame.sprite.Sprite):
         super().__init__()
 
         self.image = pygame.transform.scale(
-            pygame.image.load("Images/Power-ups/heal_icon.png").convert_alpha(),
+            pygame.image.load(
+                "Images/Power-ups/heal_icon.png").convert_alpha(),
             (50, 50),
         )
         self.rect = self.image.get_rect(midtop=(randint(10, 700), 5))

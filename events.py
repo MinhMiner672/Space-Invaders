@@ -5,17 +5,22 @@ import sys
 from sprites import Bullet, Enemy, Health_Item, Rect
 import time
 import colors
+from pygame import mixer
+from sound import SoundPlayer
+
 
 class Events:
     """This class is used to track some events during the game"""
 
     # __init__ takes the game class arg to manipulate with Game()
     def __init__(self, game_class):
+        self.sound_player = SoundPlayer()
+
         self.game = game_class
 
         # Timers
         self.health_timer = pygame.USEREVENT + 1
-        pygame.time.set_timer(self.health_timer, 10000)
+        pygame.time.set_timer(self.health_timer, 15000)
 
         self.spawn_timer = pygame.USEREVENT + 1
         pygame.time.set_timer(self.spawn_timer, 3500)
@@ -95,6 +100,7 @@ class Events:
 
                     # if the 'space' key is pressed (shoots)
                     if event.key == pygame.K_SPACE:
+                        self.sound_player.shoot.play()
                         # if user reaches the maximum amount of energy
                         if len(self.game.mana_grp) == 10:
                             self.wait_for_user_activation = True
@@ -130,99 +136,80 @@ class Events:
                 if self.wait_for_user_activation:
                     if event.type == pygame.KEYDOWN:
                         # user chooses the first power-up (triple bullets)
-                        if event.key == pygame.K_1:
-                            self.game.mana_grp.empty()
-                            for sprite in self.game.list_of_power_ups.sprites():
-                                if (
-                                    self.game.list_of_power_ups.sprites().index(sprite)
-                                    == 0
-                                ):
-                                    continue
-                                self.game.list_of_power_ups.remove(sprite)
-
-                            x_pos_for_each_bullet = (
-                                self.game.player_grp.sprite.rect.x + 29
-                            ) - 50
-                            for i in range(3):
-                                self.game.bullet_grp.add(
-                                    Bullet("normal", x_pos_for_each_bullet)
-                                )
-                                x_pos_for_each_bullet += 50
-
-                            self.game.x_pos_for_each_power_up_in_list = 200
-
-                            self.max_mana_reach = False
-                            self.killed_an_enemy = False
-                            self.bullet_type = 1
-
-                            self.start_cooldown = int(str(time.time()).split(".")[0])
-                            self.activated_power = True
-                            self.wait_for_user_activation = False
-
-                        # user chooses the first power-up (giant bullets)
-                        elif event.key == pygame.K_2:
-                            # _global.bullet_type = 2
-                            self.game.mana_grp.empty()
-                            selected_power_sprite = (
-                                self.game.list_of_power_ups.sprites()[1]
-                            )
-                            for sprite in self.game.list_of_power_ups.sprites():
-                                if sprite != selected_power_sprite:
+                        if event.key in [pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4]:
+                            if event.key == pygame.K_1:
+                                self.game.mana_grp.empty()
+                                for sprite in self.game.list_of_power_ups.sprites():
+                                    if (
+                                        self.game.list_of_power_ups.sprites().index(sprite)
+                                        == 0
+                                    ):
+                                        continue
                                     self.game.list_of_power_ups.remove(sprite)
 
-                            self.game.x_pos_for_each_power_up_in_list = 200
-                            self.bullet_type = 2
+                                x_pos_for_each_bullet = (
+                                    self.game.player_grp.sprite.rect.x + 29
+                                ) - 50
+                                for i in range(3):
+                                    self.game.bullet_grp.add(
+                                        Bullet("normal", x_pos_for_each_bullet)
+                                    )
+                                    x_pos_for_each_bullet += 50
 
-                            self.game.bullet_grp.empty()
-                            self.killed_an_enemy = False
-                            self.max_mana_reach = False
-                            self.start_cooldown = int(str(time.time()).split(".")[0])
-                            self.activated_power = True
-                            self.wait_for_user_activation = False
+                                self.bullet_type = 1
+                                self.start_cooldown = int(str(time.time()).split(".")[0])
 
-                        # user chooses the first power-up (shield)
-                        elif event.key == pygame.K_3:
-                            selected_power_sprite = (
-                                self.game.list_of_power_ups.sprites()[2]
-                            )
-
-                            for sprite in self.game.list_of_power_ups.sprites():
-                                if sprite != selected_power_sprite:
-                                    self.game.list_of_power_ups.remove(sprite)
-
-                            self.game.x_pos_for_each_power_up_in_list = 200
-
-                            self.shield_activation = True
-                            self.killed_an_enemy = False
-                            self.max_mana_reach = False
-                            self.activated_power = True
-                            self.wait_for_user_activation = False
-
-                            self.start_cooldown = int(str(time.time()).split(".")[0])
-                            self.game.mana_grp.empty()
-
-                        # user chooses the first power-up (kill all enemies, this depends on user's ability)
-                        elif event.key == pygame.K_4:
-                            if self.ability_to_kill_all:
+                            # user chooses the first power-up (giant bullets)
+                            elif event.key == pygame.K_2:
+                                # _global.bullet_type = 2
+                                self.game.mana_grp.empty()
                                 selected_power_sprite = (
-                                    self.game.list_of_power_ups.sprites()[3]
+                                    self.game.list_of_power_ups.sprites()[1]
                                 )
                                 for sprite in self.game.list_of_power_ups.sprites():
                                     if sprite != selected_power_sprite:
                                         self.game.list_of_power_ups.remove(sprite)
 
-                                self.game.x_pos_for_each_power_up_in_list = 200
+                                self.bullet_type = 2
+                                self.start_cooldown = int(str(time.time()).split(".")[0])
+                                
 
-                                self.killed_an_enemy = False
-                                self.max_mana_reach = False
-                                self.activated_power = True
-                                self.wait_for_user_activation = False
+                            # user chooses the first power-up (shield)
+                            elif event.key == pygame.K_3:
+                                selected_power_sprite = (
+                                    self.game.list_of_power_ups.sprites()[2]
+                                )
+                                for sprite in self.game.list_of_power_ups.sprites():
+                                    if sprite != selected_power_sprite:
+                                        self.game.list_of_power_ups.remove(sprite)
 
-                                self.game.enemy_grp.empty()
-                                self.game.list_of_power_ups.empty()
-                                self.game.mana_grp.empty()
+                                self.shield_activation = True
+                                self.start_cooldown = int(str(time.time()).split(".")[0])
+                            
 
-                                self.seconds_per_timer = 1700
+                            # user chooses the first power-up (kill all enemies, this depends on user's ability)
+                            elif event.key == pygame.K_4:
+                                if self.ability_to_kill_all:
+                                    selected_power_sprite = (
+                                        self.game.list_of_power_ups.sprites()[3]
+                                    )
+                                    for sprite in self.game.list_of_power_ups.sprites():
+                                        if sprite != selected_power_sprite:
+                                            self.game.list_of_power_ups.remove(sprite)
+
+                                    self.game.enemy_grp.empty()
+                                    self.game.list_of_power_ups.empty()
+                                    self.seconds_per_timer = 1700
+
+
+                            self.sound_player.activate.play()
+                            self.game.x_pos_for_each_power_up_in_list = 200
+                            self.killed_an_enemy = False
+                            self.max_mana_reach = False
+                            self.activated_power = True
+                            self.wait_for_user_activation = False
+                            self.game.mana_grp.empty()
+                        
 
                 if event.type == self.enemy_timer:
                     self.game.enemy_grp.add(
@@ -308,6 +295,7 @@ class Events:
                 if len(self.game.health_cells_grp) == 5:
                     return
 
+                SoundPlayer().heal.play()
                 self.game.health_cells_grp.add(
                     Rect(
                         self.game.health_top_left_x_pos,
@@ -359,6 +347,10 @@ class Events:
                     )
                     # powers_grp.add(Rect(x_pos_for_power_rects, 13, 'powers', 40, 40))
                     self.game.x_pos_for_each_power_up_in_list += 100
+
+        # if user reaches the maximum amount of energy
+        if len(self.game.mana_grp) == 10:
+            self.wait_for_user_activation = True
 
         # If an enemy is killed by the player, then add 1 energy cell for the player
         if self.killed_an_enemy:

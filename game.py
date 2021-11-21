@@ -62,6 +62,7 @@ class Game:
         self.enemy_grp.empty()
         self.mana_grp.empty()
         self.health_items.empty()
+        event_class.seconds_per_timer = 1700
 
         # recover the player (full 5 health cells)
         self.health_top_left_x_pos = 497

@@ -48,11 +48,11 @@ class Game:
 
     def display_score(self) -> None:
         """Displays the game score"""
-        space_font = pygame.font.Font("Fonts/big_space.ttf", 40)
+        space_font = pygame.font.Font("Fonts/big_space.ttf", 35)
         text_score_surf = space_font.render(
-            f"Score: {self.game_score}", False, (194, 255, 212)
+            f"{self.game_score}", False, (194, 255, 212)
         )
-        score_text_rect = text_score_surf.get_rect(topleft=(20, 540))
+        score_text_rect = text_score_surf.get_rect(topleft=(13, 545))
         self.screen.blit(text_score_surf, score_text_rect)
 
     def refresh(self, event_class) -> None:
@@ -93,6 +93,4 @@ class Game:
         """Controls the FPS's consistence, make it not fluctuate"""
         pygame.display.update()
         self.clock.tick(60)
-
-    def __repr__(self) -> str:
-        return f"Space Invaders Main Class"
+        

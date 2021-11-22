@@ -275,7 +275,10 @@ class Events:
                     self.game.health_top_left_x_pos = (
                         self.game.health_cells_grp.sprites()[-1].rect.x + 60
                     )
+                    self.sound_player.player_touches_an_enemy.play()
                 except IndexError:
+                    self.sound_player.game_over.play()
+
                     # index error with health_cells_grp (this is due to empty list)
                     return
 
@@ -409,6 +412,3 @@ class Events:
             # the second power-up (big bullets)
             elif self.bullet_type == 2:
                 self.game.screen.blit(self.big_bullets_surf, self.big_bullets_rect)
-
-    def __repr__(self) -> str:
-        return "Event Object"

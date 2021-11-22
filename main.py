@@ -7,18 +7,16 @@ from events import Events
 from sprites import Button
 
 from pygame import mixer
-import debug
+
 
 pygame.init()
-
 
 game = Game()
 events_tracker = Events(game)
 game.refresh(events_tracker)
 
-
 butts_font_path = "Fonts/Plaguard-ZVnjx.otf"
-glue_gun_font_path = "Fonts/GlueGun-GW8Z.ttf"
+glue_gun_font_path = "Fonts/GlueGun-GW8Z.ttf"   
 
 start_screen_font = pygame.font.Font("Fonts/Plaguard-ZVnjx.otf", 50)
 cubic_pixel_font = pygame.font.Font("Fonts/CubicPixel-lgEmy.otf", 70)
@@ -27,6 +25,9 @@ start_screen_background = pygame.transform.scale(
     pygame.image.load("Images/Scenes/start_bg.jpg").convert(), (880, 620)
 )
 paused_screen_background = pygame.image.load("Images/Scenes/pause_bg.jpg").convert()
+
+start_icon_surf = pygame.transform.scale(pygame.image.load('Images/start_icon.png').convert_alpha(), (230, 230))
+start_icon_rect = start_icon_surf.get_rect(center=(400, 120))
 
 # Some buttons
 start_button = Button(400, 280, "start", 50, butts_font_path, colors.GREEN)
@@ -38,12 +39,6 @@ quit_button_when_not_stated = Button(
     400, 370, "Quit", 40, butts_font_path, colors.WHITE
 )
 quit_button_when_paused = Button(400, 420, "Quit", 55, glue_gun_font_path, colors.WHITE)
-
-# Plays the background music
-# mixer.init()
-# mixer.music.load("./Sound/karlson_vibe.mp3")
-# mixer.music.set_volume(0.2)
-# mixer.music.play()
 
 # GAME LOOP
 running = True
@@ -191,6 +186,8 @@ while running:
         # If the game is not over
         if not game.over:
             game.screen.blit(start_screen_background, (0, 0))
+
+            game.screen.blit(start_icon_surf, start_icon_rect)
 
             # Shows the 'start' button
             game.screen.blit(start_button.image, start_button.rect)

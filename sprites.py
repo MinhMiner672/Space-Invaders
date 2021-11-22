@@ -277,6 +277,3 @@ class Button(pygame.sprite.Sprite):
             return True
 
         return False
-
-    def __repr__(self):
-        return "Button Object"
